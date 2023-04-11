@@ -16,7 +16,7 @@ export default function PauseButton(props: PauseButtonProps) {
 
   return (
     <div>
-      <button type="button" onClick={togglePause}>
+      <button className="button" type="button" onClick={togglePause}>
         {!paused ? 'Pause' : 'Unpause' }
       </button>
     </div>

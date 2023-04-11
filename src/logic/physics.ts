@@ -59,6 +59,33 @@ class Vector {
 
     return product;
   }
+
+  // returns the "z" of the cross product of two vectors, since these are 2D, not 3D
+  cross(b: Vector): number {
+    const magnitudeA = this.getMagnitude();
+    const magnitudeB = b.getMagnitude();
+    const theta = b.getTheta() - this.getTheta();
+
+    return magnitudeA * magnitudeB * Math.sin(theta);
+  }
+
+  static max(a: Vector, b: Vector): Vector {
+    const maxX = Math.max(a.x, b.x);
+    const maxY = Math.max(a.y, b.y);
+
+    return new Vector(maxX, maxY);
+  }
+
+  static min(a: Vector, b: Vector): Vector {
+    const minX = Math.min(a.x, b.x);
+    const minY = Math.min(a.y, b.y);
+
+    return new Vector(minX, minY);
+  }
+
+  static abs(a: Vector) {
+    return new Vector(Math.abs(a.x), Math.abs(a.y));
+  }
 }
 
 export { g, Vector };

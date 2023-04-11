@@ -1,19 +1,47 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import React from 'react';
 import Canvas from '@/modules/Canvas';
 
 import GameObject from '@/prefabs/GameObject';
 import { g, Vector } from '@/logic/physics';
-import PauseButton from '@/modules/PauseButton';
+import PauseButton from '@/modules/tools/PauseButton';
+import { ToolType } from '@/Types';
+import ToolButton from '@/modules/tools/ToolButton';
 
 export default function Home() {
-  const objectArr: GameObject[] = [
-    new GameObject(new Vector(-10, 0), new Vector(-40, 60), new Vector(0, -g), [10, 10], 'blue'),
-    new GameObject(new Vector(0, 0), new Vector(0, 60), new Vector(0, -g), [10, 10], 'white'),
-    new GameObject(new Vector(10, 0), new Vector(40, 60), new Vector(-0, -g), [10, 10], 'green'),
+  const gameObjects: GameObject[] = [
+    new GameObject(
+      new Vector(-100, 0),
+      new Vector(40, 60),
+      new Vector(0, -g),
+      {
+        mass: 10,
+        size: [10, 10],
+        color: 'blue',
+      },
+    ),
+    new GameObject(
+      new Vector(0, 0),
+      new Vector(0, 60),
+      new Vector(0, -g),
+      {
+        mass: 10,
+        size: [10, 10],
+      },
+    ),
+    new GameObject(
+      new Vector(100, 0),
+      new Vector(-40, 60),
+      new Vector(-0, -g),
+      {
+        mass: 20,
+        size: [10, 10],
+        color: 'green',
+      },
+    ),
   ];
 
   let paused: boolean = false;
+  let toolType: ToolType = 'null';
 
   let width: number = 0;
   let height: number = 0;
@@ -26,13 +54,17 @@ export default function Home() {
   let mouseX = 0;
   let mouseY = 0;
 
+  let lastFrameTime = Date.now();
+  let currentFrameTime = Date.now();
+  let deltaTime = 0;
+
   const onMouseUpdate = (event: any) => {
     mouseX = event.clientX;
     mouseY = event.clientY;
   };
 
   const selectObject = (object: GameObject | null) => {
-    if (selectedObject) selectedObject.color = 'white';
+    if (selectedObject) selectedObject.color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 
     if (!object) {
       selectedObject = null;
@@ -43,11 +75,6 @@ export default function Home() {
     selectedObject = object;
     selectedObject.color = 'yellow';
   };
-
-  let lastFrameTime = Date.now();
-  let currentFrameTime = Date.now();
-  let deltaTime = 0;
-  // let totalTime = 0;
 
   let ctx: CanvasRenderingContext2D;
 
@@ -61,43 +88,53 @@ export default function Home() {
     ctx.canvas.height = height;
     ctx.canvas.width = width;
 
-    selectObject(objectArr[1]);
-
+    selectObject(gameObjects[1]);
     gameLoop();
   };
 
   const mouseDown = () => {
-    addObject();
+    if (toolType === 'add') addObject();
+  };
+
+  const setToolType = (tool: ToolType) => {
+    if (tool === toolType) toolType = 'null';
+    else toolType = tool;
   };
 
   const addObject = () => {
     const obj = new GameObject(
-      new Vector(mouseX - width / 2, -mouseY + height / 2),
-      new Vector(Math.random() * 40 * (Math.random() > 0.5 ? 1 : -1), Math.random() * 60 * (Math.random() > 0.5 ? 1 : -1)),
+      new Vector(mouseX - width / 2, height / 2 - mouseY),
+      new Vector(Math.random() * 80 - 40, Math.random() * 120 - 60),
       new Vector(0, -g),
-      [10, 10],
+      {
+        size: [10, 10],
+      },
     );
-    objectArr.push(obj);
+    gameObjects.push(obj);
 
-    selectObject(objectArr[objectArr.length - 1]);
+    selectObject(gameObjects[gameObjects.length - 1]);
   };
 
-  const gameLoop = () => {
+  const gameLoop = async () => {
     requestAnimationFrame(gameLoop);
 
     lastFrameTime = currentFrameTime;
     currentFrameTime = Date.now();
-    deltaTime = currentFrameTime - lastFrameTime;
+    deltaTime = (currentFrameTime - lastFrameTime) / 1000;
 
     if (!paused) {
-      update();
+      await update();
     }
 
     render();
   };
 
   const update = async () => {
-    objectArr.forEach((object: GameObject) => object.move(deltaTime / 1000));
+    gameObjects.forEach((object: GameObject) => {
+      if (!object.isAsleep) {
+        object.move(deltaTime);
+      }
+    });
 
     if (selectedObject) {
       const selected: GameObject = selectedObject;
@@ -108,7 +145,7 @@ export default function Home() {
   const render = () => {
     ctx.clearRect(0, 0, width, height);
 
-    objectArr.forEach((object: GameObject) => {
+    gameObjects.forEach((object: GameObject) => {
       object.render(ctx);
     });
   };
@@ -120,8 +157,11 @@ export default function Home() {
   return (
     <div>
       <Canvas start={start} onMouseDown={mouseDown} />
-      <PauseButton id="pause-button" toggle={handlePauseButtonClick} />
-      {paused}
+      <div className="tools">
+        <PauseButton id="pause-button" toggle={handlePauseButtonClick} />
+        <ToolButton toolType="add" setTool={setToolType} />
+        {/* <ToolButton toolType="step" setTool={step} /> */}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,26 @@
 #canvas {
   height: 100vh;
   width: 100vw;
+  z-index: 0;
+}
+
+.tools {
+  width: 10vw;
+
+  display: flex;
+  justify-content: space-evenly;
+
+  position: absolute;
+  left: 0px;
+  bottom: 20px;
+  z-index: 1;
+}
+
+.button {
+  width: 80px;
+  height: 40px;
+
+  justify-content: center;
 }
 
 :root {

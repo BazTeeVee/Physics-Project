@@ -1,4 +1,4 @@
-{  
+{
   "env" : {
     "browser": true,
     "es2020": true,
@@ -16,6 +16,9 @@
   },
   "rules": {
     "max-len": "off",
-    "no-plusplus": "off"
+    "no-use-before-define": "off",
+    "no-continue": "off",
+    "no-plusplus": "off",
+    "@typescript-eslint/no-use-before-define": "off"
   }
 }
