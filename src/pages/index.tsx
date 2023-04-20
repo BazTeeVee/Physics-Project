@@ -33,6 +33,8 @@ export default function Home() {
     ),
   ];
 
+  let adding: boolean = false;
+
   let selectedObject: GameObject | null = null;
   const selectObject = (obj: GameObject | null) => {
     if (!obj) {
@@ -82,9 +84,9 @@ export default function Home() {
     lastFrameTime = currentFrameTime;
     currentFrameTime = Date.now();
     deltaTime = (currentFrameTime - lastFrameTime) / 1000;
-    totalTime += deltaTime;
 
     if (!paused) {
+      totalTime += deltaTime;
       await update();
     }
 
@@ -168,6 +170,22 @@ export default function Home() {
       object.render(ctx, screenSize, isSelected);
     });
 
+    if (adding) {
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 5;
+
+      const x1 = ctx.canvas.width / 2 + mousePosition.x;
+      const y1 = ctx.canvas.height / 2 - mousePosition.y;
+      const x2 = ctx.canvas.width / 2 + mouse1Pos.x;
+      const y2 = ctx.canvas.height / 2 - mouse1Pos.y;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.moveTo(0, 0);
+    }
     ctx.fillStyle = 'white';
   };
 
@@ -176,13 +194,18 @@ export default function Home() {
   };
 
   const mouseDown = () => {
-    if (toolType === 'add') mouse1Pos = mousePosition;
+    if (toolType === 'add') {
+      mouse1Pos = mousePosition;
+      adding = true;
+    }
     if (toolType === 'select') attemptObjectSelection();
   };
 
   const mouseUp = () => {
     if (toolType === 'add') {
       const velocity = mouse1Pos.subtract(mousePosition);
+
+      adding = false;
 
       addObject(velocity);
     }
