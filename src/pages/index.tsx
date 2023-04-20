@@ -48,6 +48,8 @@ export default function Home() {
   let toolType: ToolType = 'null';
 
   let screenSize: Vector = Vector.ZEROES;
+
+  let mouse1Pos = Vector.ZEROES;
   let mousePosition = Vector.ZEROES;
   const onMouseUpdate = (event: any) => {
     mousePosition = new Vector(event.clientX - screenSize.x / 2, screenSize.y / 2 - event.clientY);
@@ -65,7 +67,6 @@ export default function Home() {
 
     // detect mouse position at all times
     document.addEventListener('mousemove', onMouseUpdate, false);
-    document.addEventListener('resize', onResize);
 
     screenSize = new Vector(document.documentElement.clientWidth, document.documentElement.clientHeight);
     ctx.canvas.width = screenSize.x;
@@ -73,15 +74,6 @@ export default function Home() {
 
     selectObject(gameObjects[1]);
     gameLoop();
-  };
-
-  const onResize = (event: UIEvent) => {
-    if (event.view) {
-      screenSize = new Vector(event.view.innerWidth, event.view.innerHeight);
-
-      ctx.canvas.width = screenSize.x;
-      ctx.canvas.height = screenSize.y;
-    }
   };
 
   const gameLoop = async () => {
@@ -98,7 +90,7 @@ export default function Home() {
 
     await render();
 
-    ContextClass.setMap(selectedObject?.getContext() ?? new Map<string, string>());
+    ContextClass.setMap(selectedObject?.getContext(totalTime) ?? new Map<string, string>());
   };
 
   const update = async () => new Promise((res) => {
@@ -124,8 +116,6 @@ export default function Home() {
 
         if (xCollision && yCollision) {
           if (!obj1.collision && !obj2.collision) {
-            console.log(obj1.velocity, obj2.velocity, totalTime);
-
             obj1.collision = true;
             obj2.collision = true;
           }
@@ -142,8 +132,6 @@ export default function Home() {
           obj1.velocity = obj1.velocity.add(obj1Acceleration.multiply(deltaTime));
           obj2.velocity = obj2.velocity.add(obj2Acceleration.multiply(deltaTime));
         } else if (obj1.collision && obj2.collision) {
-          console.log(obj1.velocity, obj2.velocity, totalTime);
-
           obj1.collision = false;
           obj2.collision = false;
         }
@@ -188,8 +176,16 @@ export default function Home() {
   };
 
   const mouseDown = () => {
-    if (toolType === 'add') addObject();
+    if (toolType === 'add') mouse1Pos = mousePosition;
     if (toolType === 'select') attemptObjectSelection();
+  };
+
+  const mouseUp = () => {
+    if (toolType === 'add') {
+      const velocity = mouse1Pos.subtract(mousePosition);
+
+      addObject(velocity);
+    }
   };
 
   const setToolType = (tool: ToolType) => {
@@ -197,11 +193,10 @@ export default function Home() {
     else toolType = tool;
   };
 
-  const addObject = () => {
+  const addObject = (velocity: Vector) => {
     const obj = new GameObject(
-      new Vector(mousePosition.x - 5, mousePosition.y),
-      // generate random velocity
-      new Vector(Math.random() * 80 - 40, Math.random() * 120 - 60),
+      new Vector(mousePosition.x - 5, Math.max(mousePosition.y, -10)),
+      velocity,
       Vector.GRAVITY,
       {
         size: new Vector(10, 10),
@@ -236,7 +231,7 @@ export default function Home() {
 
   return (
     <div>
-      <Canvas start={start} onMouseDown={mouseDown} />
+      <Canvas start={start} onMouseUp={mouseUp} onMouseDown={mouseDown} />
       <div className="tools">
         <PauseButton id="pause-button" toggle={handlePauseButtonClick} />
         <StepButton step={step} />

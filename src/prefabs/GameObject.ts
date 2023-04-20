@@ -57,8 +57,6 @@ export default class GameObject {
     if (this.position.y === FLOOR_HEIGHT) {
       this.atRest = true;
       this.velocity = new Vector(0, 0);
-
-      console.log(this.position);
     }
 
     return newPosition;
@@ -87,16 +85,17 @@ export default class GameObject {
     return new Vector(middleX, middleY);
   }
 
-  getContext(): Map<string, string> {
+  getContext(totalTime: number): Map<string, string> {
     const map = new Map<string, string>();
 
-    map.set('id', `${this.id}`);
-    map.set('mass', `${this.mass}`);
-    map.set('At rest', this.atRest ? 'True' : 'False');
-    map.set('position', this.position.toString());
-    map.set('velocity', this.position.toString());
-    map.set('acceleration', this.position.toString());
-    map.set('size', this.size.toString());
+    map.set('ID', `${this.id}`);
+    map.set('Mass', `${this.mass}`);
+    map.set('At Rest', this.atRest ? 'True' : 'False');
+    map.set('Position', this.position.toString());
+    map.set('Velocity', this.velocity.toString());
+    map.set('Acceleration', this.acceleration.toString());
+    map.set('Size', this.size.toString());
+    map.set('Time Elapsed', `${totalTime.toPrecision(4)} seconds`);
 
     return map;
   }

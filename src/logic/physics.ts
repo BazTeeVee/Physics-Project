@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/lines-between-class-members */
-const g = 9.807;
+const g = 9.8;
 const k = 2285.4;
 
 class Vector {
