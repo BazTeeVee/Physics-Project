@@ -1,13 +1,26 @@
+/* eslint-disable @typescript-eslint/lines-between-class-members */
 const g = 9.807;
+const k = 2285.4;
 
 class Vector {
-  x: number;
+  static ZEROES = new Vector(0, 0);
+  static GRAVITY = new Vector(0, -g);
 
+  x: number;
   y: number;
 
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+  }
+
+  normal(): Vector {
+    const theta = this.getTheta();
+
+    const newX = this.x * Math.cos(theta) - this.y * Math.sin(theta);
+    const newY = this.x * Math.sin(theta) + this.y * Math.cos(theta);
+
+    return new Vector(newX, newY);
   }
 
   normalised(): Vector {
@@ -24,32 +37,44 @@ class Vector {
     return Math.atan2(this.y, this.x);
   }
 
-  add(b: Vector): Vector {
+  add(b: Vector | number): Vector {
+    if (typeof (b) === 'number') {
+      const x = this.x + b;
+      const y = this.y + b;
+
+      return new Vector(x, y);
+    }
+
     const x = this.x + b.x;
     const y = this.y + b.y;
 
     return new Vector(x, y);
   }
 
-  subtract(b: Vector): Vector {
+  subtract(b: Vector | number): Vector {
+    if (typeof (b) === 'number') {
+      const x = this.x - b;
+      const y = this.y - b;
+
+      return new Vector(x, y);
+    }
+
     const x = this.x - b.x;
-    const y = this.y + b.y;
+    const y = this.y - b.y;
 
     return new Vector(x, y);
   }
 
-  multiply(b: Vector | number): Vector {
-    if (typeof (b) === 'number') {
-      const x: number = this.x * b;
-      const y: number = this.y * b;
+  multiply(b: number): Vector {
+    const x: number = this.x * b;
+    const y: number = this.y * b;
 
-      return new Vector(x, y);
-    }
-    const theta: number = Math.abs(this.getTheta() - b.getTheta());
-    const magnitude: number = this.getMagnitude() * b.getMagnitude() * Math.sin(theta);
+    return new Vector(x, y);
+  }
 
-    const x: number = magnitude * Math.cos(theta);
-    const y: number = magnitude * Math.sin(theta);
+  divide(b: number): Vector {
+    const x: number = this.x / b;
+    const y: number = this.y / b;
 
     return new Vector(x, y);
   }
@@ -60,13 +85,33 @@ class Vector {
     return product;
   }
 
-  // returns the "z" of the cross product of two vectors, since these are 2D, not 3D
-  cross(b: Vector): number {
-    const magnitudeA = this.getMagnitude();
-    const magnitudeB = b.getMagnitude();
-    const theta = b.getTheta() - this.getTheta();
+  cross(b: Vector): Vector {
+    const theta: number = this.getTheta() - b.getTheta();
+    const magnitude: number = this.getMagnitude() * b.getMagnitude() * Math.sin(theta);
 
-    return magnitudeA * magnitudeB * Math.sin(theta);
+    const x: number = magnitude * Math.cos(theta);
+    const y: number = magnitude * Math.sin(theta);
+
+    return new Vector(x, y);
+  }
+
+  greater(b: Vector): boolean {
+    return (this.x > b.x && this.y > b.y);
+  }
+
+  lesser(b: Vector): boolean {
+    return (this.x < b.x && this.y < b.y);
+  }
+
+  equal(b: Vector): boolean {
+    return (this.x === b.x && this.y === b.y);
+  }
+
+  toString(): string {
+    const x = `${this.x}`.substring(0, 6);
+    const y = `${this.y}`.substring(0, 6);
+
+    return `x: ${x}, y: ${y}`;
   }
 
   static max(a: Vector, b: Vector): Vector {
@@ -88,4 +133,4 @@ class Vector {
   }
 }
 
-export { g, Vector };
+export { g, k, Vector };

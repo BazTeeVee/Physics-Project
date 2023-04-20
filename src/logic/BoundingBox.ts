@@ -2,7 +2,6 @@ import { Vector } from './physics';
 
 export default class BoundingBox {
   upperBound: Vector;
-
   lowerBound: Vector;
 
   constructor(upperBound: Vector, lowerBound: Vector) {

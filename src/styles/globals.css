@@ -4,15 +4,44 @@
   z-index: 0;
 }
 
+#context {
+  height: 30vh;
+  width: 40vw;
+
+  background-color: #0071ff33;
+  font-family: Arial, Helvetica, sans-serif;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  grid-auto-rows: minmax(40px, auto);
+
+  justify-content: center;
+  align-items: center;
+
+  position: fixed;
+  right: 2vw;
+  bottom: 2vh;
+
+  z-index: 1;
+}
+
+.context-variable {
+  width: 30%;
+  height: 50%;
+
+  margin: 20px;
+}
+
 .tools {
-  width: 10vw;
+  width: 15vw;
 
   display: flex;
   justify-content: space-evenly;
 
-  position: absolute;
-  left: 0px;
-  bottom: 20px;
+  position: fixed;
+  left: 2vw;
+  bottom: 2vh;
   z-index: 1;
 }
 

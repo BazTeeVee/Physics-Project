@@ -1,33 +1,32 @@
-import BoundingBox from '@/logic/BoundingBox';
 import { Vector } from '../logic/physics';
 
 const FLOOR_HEIGHT = -20;
 
 interface GameObjectArguments {
   mass?: number;
-  size?: number[];
+  size?: Vector;
   color?: string;
-  isAsleep?: boolean;
+  atRest?: boolean;
 }
 
 export default class GameObject {
+  static NUM_OBJECTS = 0;
+
+  id: number;
+
   position: Vector;
-
   velocity: Vector;
-
   acceleration: Vector;
 
   mass: number = 10;
-
-  boundingBox: BoundingBox;
-
-  size: number[] = [10, 10];
-
+  size: Vector = new Vector(10, 10);
   color: string = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+  collision: boolean = false;
 
-  isAsleep: boolean = false;
+  atRest: boolean = false;
 
   constructor(position: Vector, velocity: Vector, acceleration: Vector, options?: GameObjectArguments) {
+    this.id = GameObject.NUM_OBJECTS++;
     this.position = position;
     this.velocity = velocity;
     this.acceleration = acceleration;
@@ -37,22 +36,17 @@ export default class GameObject {
         mass,
         size,
         color,
-        isAsleep,
+        atRest: isAsleep,
       } = options;
 
       if (mass) this.mass = mass;
       if (size) this.size = size;
       if (color) this.color = color;
-      if (isAsleep) this.isAsleep = isAsleep;
+      if (isAsleep) this.atRest = isAsleep;
     }
-
-    const upperBound: Vector = new Vector(this.position.x + this.size[0] / 2, this.position.y + this.size[1] / 2);
-    const lowerBound: Vector = new Vector(this.position.x - this.size[0] / 2, this.position.y - this.size[1] / 2);
-
-    this.boundingBox = new BoundingBox(upperBound, lowerBound);
   }
 
-  move(deltaTime: number) {
+  move(deltaTime: number): Vector {
     const newPosition: Vector = this.position.add(this.velocity.multiply(deltaTime));
     const newVelocity: Vector = this.velocity.add(this.acceleration.multiply(deltaTime));
 
@@ -61,24 +55,49 @@ export default class GameObject {
 
     this.position.y = Math.max(this.position.y, FLOOR_HEIGHT);
     if (this.position.y === FLOOR_HEIGHT) {
+      this.atRest = true;
       this.velocity = new Vector(0, 0);
+
+      console.log(this.position);
     }
-
-    const upperBound: Vector = new Vector(this.position.x + this.size[0] / 2, this.position.y + this.size[1] / 2);
-    const lowerBound: Vector = new Vector(this.position.x - this.size[0] / 2, this.position.y - this.size[1] / 2);
-
-    this.boundingBox = new BoundingBox(upperBound, lowerBound);
 
     return newPosition;
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = this.color;
+  render(ctx: CanvasRenderingContext2D, screenSize: Vector, isSelected: boolean): void {
+    ctx.fillStyle = isSelected ? 'yellow' : this.color;
+
+    // center x and & y values in the canvas
+    const x = ctx.canvas.width / 2 + this.position.x;
+    // since the y = 0 is top left instead of the bottom right, we have to invert the y value
+    const y = ctx.canvas.height / 2 - this.position.y;
+
     ctx.fillRect(
-      this.position.x + ctx.canvas.width / 2,
-      ctx.canvas.height / 2 - this.position.y,
-      this.size[0],
-      this.size[1],
+      x,
+      y,
+      this.size.x,
+      this.size.y,
     );
+  }
+
+  center(): Vector {
+    const middleX = this.position.x + this.size.x / 2;
+    const middleY = this.position.y + this.size.y / 2;
+
+    return new Vector(middleX, middleY);
+  }
+
+  getContext(): Map<string, string> {
+    const map = new Map<string, string>();
+
+    map.set('id', `${this.id}`);
+    map.set('mass', `${this.mass}`);
+    map.set('At rest', this.atRest ? 'True' : 'False');
+    map.set('position', this.position.toString());
+    map.set('velocity', this.position.toString());
+    map.set('acceleration', this.position.toString());
+    map.set('size', this.size.toString());
+
+    return map;
   }
 }

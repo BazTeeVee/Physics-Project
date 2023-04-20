@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps, react/jsx-props-no-spreading */
 import React, { useRef, useEffect } from 'react';
 
 interface CanvasProps {

@@ -9,13 +9,13 @@ interface ToolProps {
 
 function toolToString(toolType: ToolType): string {
   if (toolType === 'add') return 'Add';
-  if (toolType === 'step') return 'Step';
+  if (toolType === 'select') return 'Select';
 
   return '[ERROR] NO TOOL TYPE';
 }
 
 export default function ToolButton(props: ToolProps) {
-  const { toolType, setTool } = props;
+  const { toolType, setTool, ...rest } = props;
   const [selected, select] = React.useState(false);
 
   const displayStr = toolToString(toolType);
@@ -27,7 +27,7 @@ export default function ToolButton(props: ToolProps) {
 
   return (
     <div>
-      <button className="button" type="button" onMouseDown={handleClick}>
+      <button className="button" type="button" onMouseDown={handleClick} {...rest}>
         { selected ? '[+] ' : '' }
         { displayStr }
       </button>

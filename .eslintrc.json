@@ -19,6 +19,8 @@
     "no-use-before-define": "off",
     "no-continue": "off",
     "no-plusplus": "off",
-    "@typescript-eslint/no-use-before-define": "off"
+    "@typescript-eslint/no-use-before-define": "off",
+    "react/jsx-props-no-spreading": "off",
+    "@typescript-eslint/lines-between-class-members": "off"
   }
 }
