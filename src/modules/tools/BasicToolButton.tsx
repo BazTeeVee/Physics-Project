@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { ToolType } from '@/Types';
 import React, { useContext } from 'react';
 import { ToolContext } from './ToolButtonHandler';
