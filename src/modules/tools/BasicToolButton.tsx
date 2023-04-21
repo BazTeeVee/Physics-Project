@@ -1,9 +1,10 @@
 import { ToolType } from '@/Types';
-import React from 'react';
+import React, { useContext } from 'react';
+import { ToolContext } from './ToolButtonHandler';
 
 interface ToolProps {
-  toolType: ToolType;
-  setTool: (tool: ToolType) => void;
+  personalType: ToolType;
+  changeType: (newTool: ToolType) => void;
   [rest: string]: any;
 }
 
@@ -15,20 +16,19 @@ function toolToString(toolType: ToolType): string {
 }
 
 export default function ToolButton(props: ToolProps) {
-  const { toolType, setTool, ...rest } = props;
-  const [selected, select] = React.useState(false);
+  const { personalType, changeType, ...rest } = props;
+  const displayStr = toolToString(personalType);
 
-  const displayStr = toolToString(toolType);
+  const toolType = useContext(ToolContext);
 
   const handleClick = () => {
-    select(!selected);
-    setTool(toolType);
+    changeType(personalType);
   };
 
   return (
     <div>
       <button className="button" type="button" onMouseDown={handleClick} {...rest}>
-        { selected ? '[+] ' : '' }
+        { toolType === personalType ? '[+] ' : '' }
         { displayStr }
       </button>
     </div>

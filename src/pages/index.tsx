@@ -3,11 +3,9 @@ import Canvas from '@/modules/Canvas';
 
 import GameObject from '@/prefabs/GameObject';
 import { Vector, k } from '@/logic/physics';
-import PauseButton from '@/modules/tools/PauseButton';
-import { ContextClass, ToolType } from '@/Types';
-import ToolButton from '@/modules/tools/BasicToolButton';
-import StepButton from '@/modules/tools/StepButton';
+import { ContextClass } from '@/Types';
 import Context from '@/modules/Context';
+import ToolButtonHandler from '@/modules/tools/ToolButtonHandler';
 
 export default function Home() {
   const gameObjects: GameObject[] = [
@@ -47,7 +45,6 @@ export default function Home() {
   };
 
   let paused: boolean = false;
-  let toolType: ToolType = 'null';
 
   let screenSize: Vector = Vector.ZEROES;
 
@@ -146,15 +143,6 @@ export default function Home() {
   const render = async () => {
     ctx.clearRect(0, 0, screenSize.x, screenSize.y);
 
-    // render y = 0, for visual purposes
-    ctx.fillStyle = 'gray';
-    ctx.fillRect(
-      0,
-      screenSize.y / 2,
-      screenSize.x,
-      1,
-    );
-
     // render "floor"
     ctx.fillStyle = 'white';
     ctx.fillRect(
@@ -194,26 +182,21 @@ export default function Home() {
   };
 
   const mouseDown = () => {
-    if (toolType === 'add') {
+    if (ContextClass.getToolType() === 'add') {
       mouse1Pos = mousePosition;
       adding = true;
     }
-    if (toolType === 'select') attemptObjectSelection();
+    if (ContextClass.getToolType() === 'select') attemptObjectSelection();
   };
 
   const mouseUp = () => {
-    if (toolType === 'add') {
+    if (ContextClass.getToolType() === 'add') {
       const velocity = mouse1Pos.subtract(mousePosition);
 
       adding = false;
 
       addObject(velocity);
     }
-  };
-
-  const setToolType = (tool: ToolType) => {
-    if (tool === toolType) toolType = 'null';
-    else toolType = tool;
   };
 
   const addObject = (velocity: Vector) => {
@@ -247,6 +230,7 @@ export default function Home() {
   const step = () => {
     const STEP_SIZE = 0.2; // amount of time per step in seconds
     deltaTime = STEP_SIZE;
+    totalTime += deltaTime;
 
     update();
     render();
@@ -256,10 +240,7 @@ export default function Home() {
     <div>
       <Canvas start={start} onMouseUp={mouseUp} onMouseDown={mouseDown} />
       <div className="tools">
-        <PauseButton id="pause-button" toggle={handlePauseButtonClick} />
-        <StepButton step={step} />
-        <ToolButton toolType="add" setTool={setToolType} />
-        <ToolButton toolType="select" setTool={setToolType} />
+        <ToolButtonHandler togglePause={handlePauseButtonClick} step={step} />
       </div>
       <Context />
     </div>
